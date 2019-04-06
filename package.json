@@ -1,0 +1,33 @@
+{
+  "name": "node-babel-eslint-boilerplate",
+  "version": "1.0.0",
+  "description": "Simple NodeJS starter with ESLint and Babel configs.",
+  "main": "src/index.js",
+  "scripts": {
+    "babel-node": "babel-node --presets=env",
+    "start": "nodemon --exec npm run babel-node -- src/index.js",
+    "build": "babel src -d dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.noxionx.com:boilerplate/node-babel-eslint-boilerplate.git"
+  },
+  "keywords": [
+    "node",
+    "babel",
+    "eslint",
+    "boilerplate"
+  ],
+  "author": "nox35400@gmail.com",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/cli": "^7.4.3",
+    "@babel/core": "^7.4.3",
+    "@babel/preset-env": "^7.4.3",
+    "eslint": "^5.16.0",
+    "nodemon": "^1.18.10"
+  },
+  "dependencies": {
+    "dotenv": "^7.0.0"
+  }
+}
