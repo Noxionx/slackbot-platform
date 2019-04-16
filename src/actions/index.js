@@ -1,3 +1,2 @@
-export * from './fetchUsers';
-export * from './test';
-export * from './newMergeRequest';
+export * from './api';
+export * from './bot';

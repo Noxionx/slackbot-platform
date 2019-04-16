@@ -1,5 +1,5 @@
 import { WebClient } from '@slack/web-api';
-import newMergeRequestTemplate from '../templates/newMergeRequest';
+import newMergeRequestTemplate from '../../templates/newMergeRequest';
 const web = new WebClient(process.env.SLACK_TOKEN);
 
 /**

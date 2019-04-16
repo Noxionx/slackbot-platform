@@ -1,25 +1,8 @@
 import 'dotenv/config';
-import express from 'express';
 import { Engine } from './Engine';
 
-/**
- * INIT
- */
-const app = express();
-
-/**
- * Bot Engine
- */
+// Create bot Engine
 const engine = new Engine();
 
-/**
- * MIDDLEWARES
- */
-app.use('/', engine.getMiddleware());
-
-/**
- * START
- */
-app.listen(3001, function() {
-  console.log('Started !');
-});
+// INIT
+engine.init().catch(console.error);

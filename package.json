@@ -28,10 +28,8 @@
     "nodemon": "^1.18.10"
   },
   "dependencies": {
+    "@slack/rtm-api": "^5.0.0",
     "@slack/web-api": "^5.0.0",
-    "body-parser": "^1.18.3",
-    "dotenv": "^7.0.0",
-    "express": "^4.16.4",
-    "raw-body": "^2.3.3"
+    "dotenv": "^7.0.0"
   }
 }
