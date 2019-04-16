@@ -1,6 +1,8 @@
+import HttpsProxyAgent from 'https-proxy-agent';
 import { WebClient } from '@slack/web-api';
 
-const web = new WebClient(process.env.SLACK_TOKEN);
+const proxy = new HttpsProxyAgent(process.env.PROXY);
+const web = new WebClient(process.env.SLACK_TOKEN, { agent: proxy });
 
 /**
  * Get list of all users on the workspace
