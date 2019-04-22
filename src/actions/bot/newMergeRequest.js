@@ -7,7 +7,7 @@ import mrDetails from '../../templates/mrDetails';
 
 const divider = [{ type: 'divider' }];
 
-const proxy = new HttpsProxyAgent(process.env.PROXY);
+const proxy = process.env.PROXY ? new HttpsProxyAgent(process.env.PROXY) : null;
 const web = new WebClient(process.env.SLACK_TOKEN, { agent: proxy });
 
 /**

@@ -9,8 +9,20 @@ const GITLAB_PROJECTS = getProjectIds(process.env.GITLAB_PROJECTS);
 
 const MAN_RE = /man/i;
 const TEST_RE = /test/i;
+const LIST_RE = /list/i;
 
 export class Engine {
+  getActionFromEvent(event) {
+    if (event.text.match(MAN_RE)) return actions.man;
+    if (event.text.match(TEST_RE)) return actions.newMergeRequest;
+    if (event.text.match(LIST_RE)) return actions.list;
+    return () => console.log('unknown action');
+  }
+
+  isAdressedToMe(event) {
+    return event.text.indexOf(this.me.id) !== -1;
+  }
+
   async init() {
     await this.initGitlab();
     await this.initSlack();
@@ -20,17 +32,14 @@ export class Engine {
   async initGitlab() {
     this.gitlab = {};
     // Fetch Gitlab Groups
-    this.gitlab.groups = await gitlabApi.getGroups();
-    this.gitlab.projects = await gitlabApi.getProjects();
-    this.gitlab.mergeRequests = await gitlabApi.getOpenedMRForProject(
-      GITLAB_PROJECTS[0]
-    );
-    //console.log(this.gitlab.projects.map(p => `${p.id} : ${p.name}`));
+    this.gitlab.mergeRequests = await gitlabApi.getAllOpenedMR();
     console.log(this.gitlab.mergeRequests);
   }
 
   async initSlack() {
-    const proxy = new HttpsProxyAgent(process.env.PROXY);
+    const proxy = process.env.PROXY
+      ? new HttpsProxyAgent(process.env.PROXY)
+      : null;
     // Create Real-Time API client
     this.rtm = new RTMClient(process.env.SLACK_TOKEN, { agent: proxy });
     // Start the RTM client
@@ -53,17 +62,7 @@ export class Engine {
       return;
     }
     const action = this.getActionFromEvent(event);
-    action(event);
-  }
-
-  getActionFromEvent(event) {
-    if (event.text.match(MAN_RE)) return actions.man;
-    if (event.text.match(TEST_RE)) return actions.newMergeRequest;
-    return () => console.log('unknown action');
-  }
-
-  isAdressedToMe(event) {
-    return event.text.indexOf(this.me.id) !== -1;
+    action(event, this.gitlab.mergeRequests);
   }
 }
 

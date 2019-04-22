@@ -6,34 +6,29 @@ import Project from '../models/Project';
 const API_PATH = '/api/v4';
 
 export async function getGroups() {
-  console.log('Get Groups...');
   const groups = await getAllPages('/groups');
   return groups.map(g => new Group(g));
 }
 
-export async function getProjects() {
-  console.log('Get Projects...');
-  const groups = await getGroups();
-  let projects = [];
-  for (let group of groups) {
-    projects = [
-      ...projects,
-      ...(await getAllPages(`/groups/${group.id}/projects`))
-    ];
-  }
+export async function getProjectsOfGroup(groupId) {
+  const projects = await getAllPages(`/groups/${groupId}/projects`);
   return projects.map(p => new Project(p));
 }
 
 export async function getOpenedMRForProject(project) {
   const mergeRequests = await getAllPages(
-    `/project/${project}/merge_requests`,
+    `/projects/${project}/merge_requests`,
     { state: 'opened' }
   );
   return mergeRequests.map(mr => new MergeRequest(mr));
 }
 
 export async function getAllOpenedMR() {
-  const projects = await getProjects();
+  const groups = await getGroups();
+  let projects = [];
+  for (let g of groups) {
+    projects = [...projects, ...(await getProjectsOfGroup(g.id))];
+  }
   let mergeRequests = [];
   for (let p of projects) {
     mergeRequests = [...mergeRequests, ...(await getOpenedMRForProject(p.id))];
@@ -52,7 +47,6 @@ async function getAllPages(path = '', params = {}) {
       page: h['x-next-page']
     };
     const { headers, body } = await get(getFullPath(path, p));
-    console.log(headers);
     h = headers;
     data = [...data, ...body];
   } while (h['x-next-page']);
