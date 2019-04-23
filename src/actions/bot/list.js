@@ -18,7 +18,8 @@ export async function list(event, { mergeRequests = [], projects = {} }) {
   for (let mergeRequest of mergeRequests) {
     const title = mrTitle({
       link: mergeRequest.web_url,
-      title: mergeRequest.title
+      title: mergeRequest.title,
+      id: mergeRequest.id
     });
     const details = mrDetails({
       project:
@@ -29,8 +30,24 @@ export async function list(event, { mergeRequests = [], projects = {} }) {
     const row = [...title, ...details, ...divider];
     blocks = [...blocks, ...row];
   }
-  await web.chat.postMessage({
-    blocks,
-    channel: process.env.CHANNEL_ID
-  });
+  if (event.channel === process.env.CHANNEL_ID) {
+    try {
+      await web.chat.delete({
+        channel: event.channel,
+        ts: event.ts
+      });
+    } catch (e) {
+      console.log(e);
+    }
+    await web.chat.postEphemeral({
+      blocks,
+      channel: event.channel,
+      user: event.user
+    });
+  } else {
+    await web.chat.postMessage({
+      blocks,
+      channel: event.channel
+    });
+  }
 }

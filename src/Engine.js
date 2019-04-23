@@ -16,7 +16,7 @@ export class Engine {
     if (event.text.match(MAN_RE)) return actions.man;
     if (event.text.match(TEST_RE)) return actions.newMergeRequest;
     if (event.text.match(LIST_RE)) return actions.list;
-    return () => console.log('unknown action');
+    return () => console.log({ message: 'unknown action', event });
   }
 
   isAdressedToMe(event) {

@@ -1,9 +1,9 @@
-export default ({ link, title }) => [
+export default ({ id, link, title }) => [
   {
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: `*<${link}|${title}>*`
+      text: `*<${link}|${title}>* (id : ${id})`
     }
   }
 ];

@@ -23,7 +23,7 @@ export async function getProject(projectId) {
 export async function getOpenedMRForProject(projectId) {
   const mergeRequests = await getAllPages(
     `/projects/${projectId}/merge_requests`,
-    { state: 'opened' }
+    { state: 'opened', wip: 'no' }
   );
   return mergeRequests.map(mr => new MergeRequest(mr));
 }
