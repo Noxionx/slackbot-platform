@@ -13,23 +13,24 @@ const web = new WebClient(process.env.SLACK_TOKEN, { agent: proxy });
 /**
  * Create a new message for a merge request
  */
-export async function list(event, mergeRequests = []) {
-  console.log(mergeRequests);
+export async function list(event, { mergeRequests = [], projects = {} }) {
+  let blocks = [];
   for (let mergeRequest of mergeRequests) {
     const title = mrTitle({
       link: mergeRequest.web_url,
       title: mergeRequest.title
     });
     const details = mrDetails({
-      project: mergeRequest.project_id,
+      project:
+        projects[mergeRequest.project_id].name || mergeRequest.project_id,
       author: mergeRequest.author.name,
       target: mergeRequest.target_branch
     });
-    const status = mergeRequest.user_notes_count ? mrStatus() : [];
-
-    await web.chat.postMessage({
-      blocks: [...title, ...details, ...divider, ...status],
-      channel: process.env.CHANNEL_ID
-    });
+    const row = [...title, ...details, ...divider];
+    blocks = [...blocks, ...row];
   }
+  await web.chat.postMessage({
+    blocks,
+    channel: process.env.CHANNEL_ID
+  });
 }

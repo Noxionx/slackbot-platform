@@ -31,9 +31,18 @@ export class Engine {
 
   async initGitlab() {
     this.gitlab = {};
-    // Fetch Gitlab Groups
-    this.gitlab.mergeRequests = await gitlabApi.getAllOpenedMR();
-    console.log(this.gitlab.mergeRequests);
+    this.gitlab.mergeRequests = await gitlabApi.getOpenedMRForProject(
+      GITLAB_PROJECTS[0]
+    );
+    this.gitlab.projects = {};
+    for (let mr of this.gitlab.mergeRequests) {
+      if (!this.gitlab.projects[mr.project_id]) {
+        this.gitlab.projects[mr.project_id] = await gitlabApi.getProject(
+          mr.project_id
+        );
+        console.log(this.gitlab.projects[mr.project_id]);
+      }
+    }
   }
 
   async initSlack() {
@@ -62,7 +71,7 @@ export class Engine {
       return;
     }
     const action = this.getActionFromEvent(event);
-    action(event, this.gitlab.mergeRequests);
+    action(event, this.gitlab);
   }
 }
 

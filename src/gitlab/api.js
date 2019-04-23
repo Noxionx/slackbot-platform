@@ -15,9 +15,14 @@ export async function getProjectsOfGroup(groupId) {
   return projects.map(p => new Project(p));
 }
 
-export async function getOpenedMRForProject(project) {
+export async function getProject(projectId) {
+  const { body } = await get(`/projects/${projectId}`);
+  return new Project(body);
+}
+
+export async function getOpenedMRForProject(projectId) {
   const mergeRequests = await getAllPages(
-    `/projects/${project}/merge_requests`,
+    `/projects/${projectId}/merge_requests`,
     { state: 'opened' }
   );
   return mergeRequests.map(mr => new MergeRequest(mr));

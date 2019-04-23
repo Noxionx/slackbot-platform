@@ -8,11 +8,11 @@ export default ({ project, author, target }) => [
       },
       {
         type: 'mrkdwn',
-        text: `*Author:* ${author}`
+        text: `*Target Branch:* ${target}`
       },
       {
         type: 'mrkdwn',
-        text: `*Target Branch:* ${target}`
+        text: `*Author:* ${author}`
       }
     ]
   }
