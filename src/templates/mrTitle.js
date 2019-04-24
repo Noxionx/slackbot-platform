@@ -1,9 +1,13 @@
-export default ({ id, link, title }) => [
+import { getStatusIcon } from './mrStatus';
+
+export default ({ link, title, status }, showStatus = false) => [
   {
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: `*<${link}|${title}>* (id : ${id})`
+      text: `${
+        showStatus ? `${getStatusIcon(status)} ` : ''
+      }*<${link}|${title}>*`
     }
   }
 ];

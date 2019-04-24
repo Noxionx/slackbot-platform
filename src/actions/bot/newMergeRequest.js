@@ -1,14 +1,10 @@
-import HttpsProxyAgent from 'https-proxy-agent';
-import { WebClient } from '@slack/web-api';
+import WebClient from '../webClient';
 
 import mrTitle from '../../templates/mrTitle';
 import mrStatus from '../../templates/mrStatus';
 import mrDetails from '../../templates/mrDetails';
 
 const divider = [{ type: 'divider' }];
-
-const proxy = process.env.PROXY ? new HttpsProxyAgent(process.env.PROXY) : null;
-const web = new WebClient(process.env.SLACK_TOKEN, { agent: proxy });
 
 /**
  * Create a new message for a merge request
@@ -25,7 +21,7 @@ export async function newMergeRequest() {
     target: 'develop'
   });
 
-  await web.chat.postMessage({
+  await WebClient.chat.postMessage({
     blocks: [...title, ...details, ...divider, ...status],
     channel: process.env.CHANNEL_ID
   });

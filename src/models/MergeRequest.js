@@ -19,5 +19,7 @@ export default class MergeRequest {
     this.merge_status = data.merge_status;
     this.user_notes_count = data.user_notes_count;
     this.web_url = data.web_url;
+
+    this.status = data.status;
   }
 }

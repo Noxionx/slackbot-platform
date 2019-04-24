@@ -10,12 +10,14 @@ const GITLAB_PROJECTS = getProjectIds(process.env.GITLAB_PROJECTS);
 const MAN_RE = /man/i;
 const TEST_RE = /test/i;
 const LIST_RE = /list/i;
+const SHOW_RE = /show (\d+)/g;
 
 export class Engine {
   getActionFromEvent(event) {
     if (event.text.match(MAN_RE)) return actions.man;
     if (event.text.match(TEST_RE)) return actions.newMergeRequest;
     if (event.text.match(LIST_RE)) return actions.list;
+    if (event.text.match(SHOW_RE)) return actions.show;
     return () => console.log({ message: 'unknown action', event });
   }
 
@@ -40,7 +42,6 @@ export class Engine {
         this.gitlab.projects[mr.project_id] = await gitlabApi.getProject(
           mr.project_id
         );
-        console.log(this.gitlab.projects[mr.project_id]);
       }
     }
   }
@@ -57,8 +58,8 @@ export class Engine {
     this.rtm.on('message', event => this.runHandler(event));
 
     // Fetch all users on slack
-    const tmp = await actions.fetchUsers();
-    this.users = [...tmp].filter(u => !u.deleted);
+    const users = await actions.fetchUsers();
+    this.users = [...users].filter(u => !u.deleted);
 
     this.me = this.users.find(u => u.name === BOT_NAME);
     if (!this.me) {
@@ -71,7 +72,11 @@ export class Engine {
       return;
     }
     const action = this.getActionFromEvent(event);
-    action(event, this.gitlab);
+    action({
+      event,
+      mergeRequests: this.gitlab.mergeRequests,
+      projects: this.gitlab.projects
+    });
   }
 }
 

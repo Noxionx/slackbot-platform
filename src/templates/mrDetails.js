@@ -1,7 +1,11 @@
-export default ({ project, author, target }) => [
+export default ({ id, project, author, target }) => [
   {
     type: 'context',
     elements: [
+      {
+        type: 'mrkdwn',
+        text: `*ID:* ${id}`
+      },
       {
         type: 'mrkdwn',
         text: `*Project:* ${project}`
