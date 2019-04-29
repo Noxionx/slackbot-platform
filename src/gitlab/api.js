@@ -4,6 +4,8 @@ import Group from '../models/Group';
 import Project from '../models/Project';
 import STATUS_TYPES from '../models/StatusType';
 
+import db from '../db';
+
 const API_PATH = '/api/v4';
 
 export async function getGroups() {
@@ -33,9 +35,7 @@ export async function getOpenedMRForProject(projectId) {
   );
   const newList = [];
   for (let mr of mergeRequests) {
-    newList.push(
-      new MergeRequest({ ...mr, status: await getMRStatus(projectId, mr) })
-    );
+    newList.push(new MergeRequest(mr));
   }
   return newList;
 }
@@ -53,25 +53,48 @@ export async function getAllOpenedMR() {
   return mergeRequests;
 }
 
-/**
- * Private functions
- */
-
-async function getMRStatus(projectId, mr) {
-  const notes = await getAllPages(
-    `/projects/${projectId}/merge_requests/${mr.iid}/notes`
-  );
-  const hasUnresolvedNotes = notes
-    .filter(n => n.resolvable)
-    .some(n => !n.resolved);
-  if (hasUnresolvedNotes) {
+export async function getMRStatus(mr) {
+  let unresolvedNotes = false;
+  if (mr.user_notes_count) {
+    unresolvedNotes = await hasUnresolvedNotes(mr);
+  }
+  if (unresolvedNotes) {
     return STATUS_TYPES.UNRESOLVED;
   } else {
-    // TODO : Handle reviews
-    return STATUS_TYPES.NEW;
+    const reviews = getReviews(mr);
+    switch (reviews.length) {
+    case 0:
+      return STATUS_TYPES.NEW;
+    case 1:
+      return STATUS_TYPES.REVIEWED_ONCE;
+    default:
+      return STATUS_TYPES.REVIEWED_TWICE;
+    }
   }
 }
 
+export async function hasUnresolvedNotes(mergeRequest) {
+  const notes = await getAllPages(
+    `/projects/${mergeRequest.project_id}/merge_requests/${
+      mergeRequest.iid
+    }/notes`
+  );
+  return notes.filter(n => n.resolvable).some(n => !n.resolved);
+}
+
+export function getReviews(mergeRequest) {
+  return db
+    .get('reviews')
+    .filter({
+      projectId: mergeRequest.project_id,
+      iid: mergeRequest.iid.toString()
+    })
+    .value();
+}
+
+/**
+ * Private functions
+ */
 async function getAllPages(path = '', params = {}) {
   let h = {
     'x-next-page': '1'

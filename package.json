@@ -4,7 +4,7 @@
   "description": "Simple NodeJS starter with ESLint and Babel configs.",
   "main": "src/index.js",
   "scripts": {
-    "start": "nodemon --exec babel-node -- src/index.js",
+    "start": "nodemon --ignore db.json --exec babel-node -- src/index.js",
     "build": "babel src -d dist"
   },
   "repository": {
@@ -31,6 +31,7 @@
     "@slack/rtm-api": "^5.0.0",
     "@slack/web-api": "^5.0.0",
     "dotenv": "^7.0.0",
-    "https-proxy-agent": "^2.2.1"
+    "https-proxy-agent": "^2.2.1",
+    "lowdb": "^1.0.0"
   }
 }

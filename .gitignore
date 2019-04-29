@@ -90,3 +90,4 @@ typings/
 !.vscode/extensions.json
 
 dist
+db.json

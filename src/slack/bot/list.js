@@ -3,6 +3,7 @@ import WebClient from '../webClient';
 import mrTitle from '../templates/mrTitle';
 import mrDetails from '../templates/mrDetails';
 import { imFor } from '../api';
+import { getMRStatus } from '../../gitlab/api';
 
 const divider = [{ type: 'divider' }];
 
@@ -12,11 +13,12 @@ const divider = [{ type: 'divider' }];
 export async function list({ event, mergeRequests = [], projects = {} }) {
   let blocks = [];
   for (let mergeRequest of mergeRequests) {
+    const status = await getMRStatus(mergeRequest);
     const title = mrTitle(
       {
         link: mergeRequest.web_url,
         title: mergeRequest.title,
-        status: mergeRequest.status
+        status
       },
       true
     );

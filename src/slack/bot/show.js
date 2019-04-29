@@ -4,8 +4,7 @@ import mrTitle from '../templates/mrTitle';
 import mrStatus from '../templates/mrStatus';
 import mrDetails from '../templates/mrDetails';
 import { imFor } from '../api';
-
-const RE = /show (\d+)/g;
+import { getReviews, hasUnresolvedNotes } from '../../gitlab';
 
 const divider = [{ type: 'divider' }];
 
@@ -13,6 +12,7 @@ const divider = [{ type: 'divider' }];
  * Create a new message for a merge request
  */
 export async function show({ event, mergeRequests = [], projects = {} }) {
+  const RE = /show (\d+)/g;
   const iid = RE.exec(event.text)[1];
   if (!iid) {
     throw 'Missing merge request iid !';
@@ -32,7 +32,12 @@ export async function show({ event, mergeRequests = [], projects = {} }) {
     author: mergeRequest.author.name,
     target: mergeRequest.target_branch
   });
-  const row = [...title, ...details, ...divider];
+  const unresolvedNotes = await hasUnresolvedNotes(mergeRequest);
+  const status = mrStatus({
+    reviews: getReviews(mergeRequest),
+    hasUnresolvedNotes: unresolvedNotes
+  });
+  const row = [...title, ...details, ...divider, ...status];
   blocks = [...blocks, ...row];
 
   await WebClient.chat.postMessage({
