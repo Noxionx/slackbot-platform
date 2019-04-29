@@ -1,8 +1,8 @@
 import WebClient from '../webClient';
 
-import mrTitle from '../../templates/mrTitle';
-import mrStatus from '../../templates/mrStatus';
-import mrDetails from '../../templates/mrDetails';
+import mrTitle from '../templates/mrTitle';
+import mrStatus from '../templates/mrStatus';
+import mrDetails from '../templates/mrDetails';
 import { imFor } from '../api';
 
 const RE = /show (\d+)/g;

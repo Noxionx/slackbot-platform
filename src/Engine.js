@@ -1,23 +1,24 @@
 import HttpsProxyAgent from 'https-proxy-agent';
 import { RTMClient } from '@slack/rtm-api';
-import * as actions from './actions';
-import * as gitlabApi from './gitlab/api';
+import * as slack from './slack';
+import * as gitlab from './gitlab';
 
 const BOT_NAME = process.env.BOT_NAME || 'mr-bot';
 
 const GITLAB_PROJECTS = getProjectIds(process.env.GITLAB_PROJECTS);
 
 const MAN_RE = /man/i;
-const TEST_RE = /test/i;
+const INFO_RE = /info/i;
 const LIST_RE = /list/i;
-const SHOW_RE = /show (\d+)/g;
+const SHOW_RE = /show (\d+)/i;
+const REVIEW_RE = /review (\d+)/i;
 
 export class Engine {
   getActionFromEvent(event) {
-    if (event.text.match(MAN_RE)) return actions.man;
-    if (event.text.match(TEST_RE)) return actions.newMergeRequest;
-    if (event.text.match(LIST_RE)) return actions.list;
-    if (event.text.match(SHOW_RE)) return actions.show;
+    if (event.text.match(MAN_RE)) return slack.man;
+    if (event.text.match(INFO_RE)) return slack.info;
+    if (event.text.match(LIST_RE)) return slack.list;
+    if (event.text.match(SHOW_RE)) return slack.show;
     return () => console.log({ message: 'unknown action', event });
   }
 
@@ -33,13 +34,13 @@ export class Engine {
 
   async initGitlab() {
     this.gitlab = {};
-    this.gitlab.mergeRequests = await gitlabApi.getOpenedMRForProject(
+    this.gitlab.mergeRequests = await gitlab.getOpenedMRForProject(
       GITLAB_PROJECTS[0]
     );
     this.gitlab.projects = {};
     for (let mr of this.gitlab.mergeRequests) {
       if (!this.gitlab.projects[mr.project_id]) {
-        this.gitlab.projects[mr.project_id] = await gitlabApi.getProject(
+        this.gitlab.projects[mr.project_id] = await gitlab.getProject(
           mr.project_id
         );
       }
@@ -58,7 +59,7 @@ export class Engine {
     this.rtm.on('message', event => this.runHandler(event));
 
     // Fetch all users on slack
-    const users = await actions.fetchUsers();
+    const users = await slack.fetchUsers();
     this.users = [...users].filter(u => !u.deleted);
 
     this.me = this.users.find(u => u.name === BOT_NAME);

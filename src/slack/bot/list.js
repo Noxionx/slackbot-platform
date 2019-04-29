@@ -1,7 +1,7 @@
 import WebClient from '../webClient';
 
-import mrTitle from '../../templates/mrTitle';
-import mrDetails from '../../templates/mrDetails';
+import mrTitle from '../templates/mrTitle';
+import mrDetails from '../templates/mrDetails';
 import { imFor } from '../api';
 
 const divider = [{ type: 'divider' }];
@@ -12,7 +12,6 @@ const divider = [{ type: 'divider' }];
 export async function list({ event, mergeRequests = [], projects = {} }) {
   let blocks = [];
   for (let mergeRequest of mergeRequests) {
-    console.log(mergeRequest.status);
     const title = mrTitle(
       {
         link: mergeRequest.web_url,

@@ -1,4 +1,21 @@
-import WebClient from '../webClient';
+import WebClient from './webClient';
+
+/**
+ * Test an API call
+ * @returns callback The 'echo' payload
+ */
+export async function test() {
+  return await WebClient.api.test();
+}
+
+/**
+ * Get list of all users on the workspace
+ * @returns users
+ */
+export async function fetchUsers() {
+  const rep = await WebClient.users.list();
+  return rep.members;
+}
 
 /**
  * Get list of all direct messages for the bot

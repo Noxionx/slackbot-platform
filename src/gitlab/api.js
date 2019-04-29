@@ -2,7 +2,7 @@ import https from 'https';
 import MergeRequest from '../models/MergeRequest';
 import Group from '../models/Group';
 import Project from '../models/Project';
-import { STATUS_TYPES } from '../templates/mrStatus';
+import STATUS_TYPES from '../models/StatusType';
 
 const API_PATH = '/api/v4';
 

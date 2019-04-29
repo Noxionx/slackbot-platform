@@ -10,6 +10,7 @@ export default () => [
 
 const MAN_ENTRIES = [
   { command: 'man', info: 'Print this help' },
+  { command: 'info', info: 'Display status icons details' },
   { command: 'list', info: 'List all opened Merge requests' },
   { command: 'show [id]', info: 'Show Merge request details' }
 ];

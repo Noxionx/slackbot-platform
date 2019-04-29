@@ -1,3 +1,5 @@
+import STATUS_TYPES from '../../models/StatusType';
+
 export default () => [
   {
     type: 'context',
@@ -22,10 +24,3 @@ export function getStatusIcon(status) {
     return ':heavy_check_mark:';
   }
 }
-
-export const STATUS_TYPES = {
-  NEW: 'NEW',
-  UNRESOLVED: 'UNRESOLVED',
-  REVIEWED_ONCE: 'REVIEWED_ONCE',
-  REVIEWED_TWICE: 'REVIEWED_TWICE'
-};
