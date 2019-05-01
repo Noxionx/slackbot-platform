@@ -20,11 +20,20 @@ export default class SlackManager extends EventEmitter {
 
     await this.rtmClient.start();
     this.rtmClient.on('message', event => {
-      if (!event.text || !isBotMessage(this.me.id, event.text)) {
-        return;
+      if (!event.text) return;
+      if (event.subtype && event.subtype == 'bot_message') {
+        this.emit('_botmsg', { event });
+      } else if (isBotMessage(this.me.id, event.text)) {
+        const { cmd, args } = parseMessageToCommand(event.text);
+        this.emit(cmd, { args, event });
       }
-      const { cmd, args } = parseMessageToCommand(event.text);
-      this.emit(cmd, args);
+    });
+
+    this.rtmClient.on('reaction_added', event => {
+      console.log(event);
+    });
+    this.rtmClient.on('reaction_removed', event => {
+      console.log(event);
     });
   }
 

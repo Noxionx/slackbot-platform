@@ -29,6 +29,20 @@ export class Engine {
   async init() {
     await this.gitlabManager.init();
     await this.slackManager.init();
+
+    await this.connectEvents();
     console.log('Engine started');
+  }
+
+  async connectEvents() {
+    this.slackManager.on('man', ({ event }) =>
+      this.slackManager.sendDM(event.user, this.templateManager.man())
+    );
+
+    this.slackManager.on('info', ({ event }) =>
+      this.slackManager.sendDM(event.user, this.templateManager.info())
+    );
+
+    this.slackManager.on('_botmsg', ({ event }) => console.log(event));
   }
 }

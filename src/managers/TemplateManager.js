@@ -13,7 +13,7 @@ export default class TemplateManager {
     man += 'Commands :\n';
     man += `${MAN_ENTRIES.map(buildManEntry).join('\n')}`;
 
-    return [section(markdown(codeBloc(man)))];
+    return { blocks: [section(markdown(codeBloc(man)))] };
   }
 
   info() {
@@ -25,7 +25,7 @@ export default class TemplateManager {
     txt +=
       ':heavy_check_mark: : The merge request has been reviewed by two persons and is ready be merged';
 
-    return [section(markdown(txt))];
+    return { blocks: [section(markdown(txt))] };
   }
 
   listMergeRequests(mergeRequests = []) {
@@ -41,7 +41,7 @@ export default class TemplateManager {
       const row = [title, details, divider()];
       blocks = [...blocks, ...row];
     }
-    return blocks;
+    return { blocks };
   }
 }
 
