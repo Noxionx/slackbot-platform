@@ -30,10 +30,10 @@ export default class SlackManager extends EventEmitter {
     });
 
     this.rtmClient.on('reaction_added', event => {
-      console.log(event);
+      this.emit('reaction', { event });
     });
     this.rtmClient.on('reaction_removed', event => {
-      console.log(event);
+      this.emit('reaction', { event });
     });
   }
 
@@ -122,6 +122,35 @@ export default class SlackManager extends EventEmitter {
       channel,
       user
     });
+  }
+
+  /**
+   * Remove a message
+   * @param {string} channel The channel ID
+   * @param {float} ts The ts value of the message to delete
+   */
+  async removeMsg(channel, ts) {
+    await this.webClient.chat.delete({
+      channel,
+      ts
+    });
+  }
+
+  /**
+   * Remove a message from the main channel
+   * @param {float} ts The ts value of the message to delete
+   */
+  async removeFromMain(ts) {
+    await this.removeMsg(this.mainChannel, ts);
+  }
+
+  /**
+   * Remove a direct message for a user
+   * @param {string} user The user ID
+   * @param {float} ts The ts value of the message to delete
+   */
+  async removeDM(user, ts) {
+    await this.removeMsg(await this.getDMFor(user), ts);
   }
 }
 

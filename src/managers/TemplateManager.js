@@ -43,6 +43,18 @@ export default class TemplateManager {
     }
     return { blocks };
   }
+
+  mergeRequest(mergeRequest) {
+    const title = section(
+      markdown(`*<${mergeRequest.web_url}|${mergeRequest.title}>*`)
+    );
+    const details = context([
+      markdown(`*Project:* ${mergeRequest.project_name}`),
+      markdown(`*Target Branch:* ${mergeRequest.target_branch}`),
+      markdown(`*Author:* ${mergeRequest.author.name}`)
+    ]);
+    return { blocks: [title, details, divider()] };
+  }
 }
 
 /**
@@ -55,6 +67,9 @@ function buildManEntry({ command, info }) {
   return `${command}${' '.repeat(maxLg - command.length)}\t${info}`;
 }
 
+/**
+ * BLOCK ELEMENTS
+ */
 function section(text) {
   return { type: 'section', text };
 }

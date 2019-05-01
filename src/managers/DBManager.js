@@ -7,6 +7,6 @@ export default class DBManager {
     this.db = low(adapter);
 
     // Set some defaults (required if your JSON file is empty)
-    this.db.defaults({ reviews: [] }).write();
+    this.db.defaults({ mergeRequests: [] }).write();
   }
 }

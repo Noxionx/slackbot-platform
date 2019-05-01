@@ -3,6 +3,8 @@ import HttpsProxyAgent from 'https-proxy-agent';
 import SlackManager from './managers/SlackManager';
 import GitlabManager from './managers/GitlabManager';
 import TemplateManager from './managers/TemplateManager';
+import ReviewManager from './managers/ReviewManager';
+import DBManager from './managers/DBManager';
 
 export class Engine {
   constructor() {
@@ -13,7 +15,7 @@ export class Engine {
     this.gitlabManager = new GitlabManager({
       url: process.env.GITLAB_URL,
       token: process.env.GITLAB_TOKEN,
-      projects: [{ id: 26 }]
+      projects: [{ id: 26, name: 'Boilerplate' }]
     });
 
     this.slackManager = new SlackManager({
@@ -24,12 +26,22 @@ export class Engine {
     });
 
     this.templateManager = new TemplateManager();
+
+    this.dbManager = new DBManager();
+
+    this.reviewManager = new ReviewManager({
+      gitlabManager: this.gitlabManager,
+      slackManager: this.slackManager,
+      templateManager: this.templateManager,
+      dbManager: this.dbManager
+    });
   }
 
   async init() {
     await this.gitlabManager.init();
     await this.slackManager.init();
 
+    await this.reviewManager.init();
     await this.connectEvents();
     console.log('Engine started');
   }

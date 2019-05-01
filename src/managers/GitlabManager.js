@@ -15,12 +15,15 @@ export default class GitlabManager extends EventEmitter {
   async fetchMergeRequests() {
     let mergeRequests = [];
     for (let project of this.projects) {
-      const mr = await this.api.MergeRequests.all({
+      let mr = await this.api.MergeRequests.all({
         projectId: project.id,
         state: 'opened',
         wip: 'no'
       });
-      mergeRequests = [...this.mergeRequests, ...mr];
+      mergeRequests = [
+        ...this.mergeRequests,
+        ...mr.map(m => ({ ...m, project_name: project.name }))
+      ];
     }
     return mergeRequests;
   }

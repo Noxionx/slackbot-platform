@@ -1,3 +1,5 @@
+import Review from './Review';
+
 export default class MergeRequest {
   constructor(data = {}) {
     this.id = data.id;
@@ -20,6 +22,13 @@ export default class MergeRequest {
     this.user_notes_count = data.user_notes_count;
     this.web_url = data.web_url;
 
-    this.status = data.status;
+    // Custom fields
+    this.project_name = data.project_name;
+
+    // Slack Info
+    this.ts = data.ts;
+
+    // Review Info (bof bof)
+    this.reviews = (data.reviews || []).map(r => new Review(r));
   }
 }
