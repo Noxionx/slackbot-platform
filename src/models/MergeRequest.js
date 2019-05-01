@@ -23,12 +23,14 @@ export default class MergeRequest {
     this.web_url = data.web_url;
 
     // Custom fields
-    this.project_name = data.project_name;
+    this.project_name = data.project_name || '';
+    this.hasUnresolvedNotes = data.hasUnresolvedNotes || false;
 
     // Slack Info
-    this.ts = data.ts;
+    this.ts = data.ts || null;
 
-    // Review Info (bof bof)
-    this.reviews = (data.reviews || []).map(r => new Review(r));
+    // Review Info
+    this.reviewers = data.reviewers || [];
+    this.validators = data.validators || [];
   }
 }

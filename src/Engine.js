@@ -6,6 +6,14 @@ import TemplateManager from './managers/TemplateManager';
 import ReviewManager from './managers/ReviewManager';
 import DBManager from './managers/DBManager';
 
+/**
+ * Main projects declaration (has to be improved !)
+ */
+const PROJECTS = [
+  { id: 26, name: 'Boilerplate' }
+  //  { id: 123, name: 'TOTO' },
+];
+
 export class Engine {
   constructor() {
     const proxy = process.env.PROXY
@@ -15,7 +23,7 @@ export class Engine {
     this.gitlabManager = new GitlabManager({
       url: process.env.GITLAB_URL,
       token: process.env.GITLAB_TOKEN,
-      projects: [{ id: 26, name: 'Boilerplate' }]
+      projects: PROJECTS
     });
 
     this.slackManager = new SlackManager({
@@ -38,12 +46,12 @@ export class Engine {
   }
 
   async init() {
-    await this.gitlabManager.init();
     await this.slackManager.init();
-
     await this.reviewManager.init();
+
     await this.connectEvents();
-    console.log('Engine started');
+
+    return 'Engine started';
   }
 
   async connectEvents() {
@@ -54,7 +62,5 @@ export class Engine {
     this.slackManager.on('info', ({ event }) =>
       this.slackManager.sendDM(event.user, this.templateManager.info())
     );
-
-    this.slackManager.on('_botmsg', ({ event }) => console.log(event));
   }
 }

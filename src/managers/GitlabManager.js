@@ -8,22 +8,21 @@ export default class GitlabManager extends EventEmitter {
     this.api = new Gitlab({ url, token });
   }
 
-  async init() {
-    this.mergeRequests = [];
-  }
-
   async fetchMergeRequests() {
-    let mergeRequests = [];
+    const mergeRequests = [];
     for (let project of this.projects) {
       let mr = await this.api.MergeRequests.all({
         projectId: project.id,
         state: 'opened',
         wip: 'no'
       });
-      mergeRequests = [
-        ...this.mergeRequests,
-        ...mr.map(m => ({ ...m, project_name: project.name }))
-      ];
+      for (let m of mr) {
+        mergeRequests.push({
+          ...m,
+          project_name: project.name,
+          hasUnresolvedNotes: await this.hasUnresolvedNotes(m)
+        });
+      }
     }
     return mergeRequests;
   }

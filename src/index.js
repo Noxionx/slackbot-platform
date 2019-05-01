@@ -5,4 +5,7 @@ import { Engine } from './Engine';
 const engine = new Engine();
 
 // INIT
-engine.init().catch(console.error);
+engine
+  .init()
+  .then(console.log)
+  .catch(console.error);

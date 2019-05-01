@@ -1,10 +1,10 @@
 const MAN_ENTRIES = [
   { command: 'man', info: 'Print this help' },
-  { command: 'info', info: 'Display status icons details' },
-  { command: 'list', info: 'List all opened Merge requests' },
-  { command: 'show [id]', info: 'Show Merge request details' },
-  { command: 'review [id]', info: 'Review / Unreview Merge request' }
+  { command: 'info', info: 'Display reactions icons details' },
+  { command: 'list', info: 'List all opened Merge requests' }
 ];
+
+const MIN_REVIEWS = 2;
 
 export default class TemplateManager {
   man() {
@@ -17,13 +17,9 @@ export default class TemplateManager {
   }
 
   info() {
-    let txt = '*Status*\n';
-    txt += ':sparkles: : New merge request\n';
-    txt += ':warning: : The merge request has unresolved discussions\n';
-    txt +=
-      ':white_check_mark: : The merge request has been reviewed by one person\n';
-    txt +=
-      ':heavy_check_mark: : The merge request has been reviewed by two persons and is ready be merged';
+    let txt = '*Reactions*\n';
+    txt += ':eyes: :eyeglasses: : Start a review\n';
+    txt += ':white_check_mark: :heavy_check_mark: : Approve a review\n';
 
     return { blocks: [section(markdown(txt))] };
   }
@@ -53,7 +49,8 @@ export default class TemplateManager {
       markdown(`*Target Branch:* ${mergeRequest.target_branch}`),
       markdown(`*Author:* ${mergeRequest.author.name}`)
     ]);
-    return { blocks: [title, details, divider()] };
+    const status = context([markdown(getMergeRequestStatus(mergeRequest))]);
+    return { blocks: [title, details, divider(), status] };
   }
 }
 
@@ -65,6 +62,45 @@ function buildManEntry({ command, info }) {
   const maxLg = Math.max(...MAN_ENTRIES.map(e => e.command.length));
   // We add spaces to align all the info
   return `${command}${' '.repeat(maxLg - command.length)}\t${info}`;
+}
+
+function getMergeRequestStatus(mergeRequest) {
+  let str = '';
+  if (mergeRequest.hasUnresolvedNotes) {
+    str += ':warning: There is unresolved discussions';
+  }
+  if (mergeRequest.reviewers && mergeRequest.reviewers.length) {
+    mergeRequest.reviewers.forEach((r, i) => {
+      if (mergeRequest.hasUnresolvedNotes || i > 0) {
+        str += '\n';
+      }
+      if (
+        mergeRequest.validators &&
+        mergeRequest.validators.indexOf(r) !== -1
+      ) {
+        str += `:${
+          i === 0 ? 'white' : 'heavy'
+        }_check_mark: This Merge Request has been approved by <@${r}>`;
+      } else {
+        str += `:eyes: This Merge Request is being reviewed by <@${r}>`;
+      }
+    });
+  }
+  if (!mergeRequest.hasUnresolvedNotes) {
+    if (
+      mergeRequest.reviewers.length &&
+      mergeRequest.reviewers.length === mergeRequest.validators.length &&
+      mergeRequest.validators.length < MIN_REVIEWS
+    ) {
+      str += '\n:pray: More review(s) needed :pray:';
+    } else if (mergeRequest.validators.length === MIN_REVIEWS) {
+      str += '\n:tada: Ready to merge !';
+    }
+  }
+  if (!str.length) {
+    str += ':loudspeaker: :sparkles: New Merge Request to review';
+  }
+  return str;
 }
 
 /**

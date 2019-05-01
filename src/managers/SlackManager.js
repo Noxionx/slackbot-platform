@@ -125,6 +125,39 @@ export default class SlackManager extends EventEmitter {
   }
 
   /**
+   * Update a message
+   * @param {string} channel The channel id
+   * @param {float} ts The ts value of the message to update
+   * @param {{text: string, blocks: any[]}} args An object with either blocks or text property
+   */
+  async updateMsg(channel, ts, args) {
+    await this.webClient.chat.update({
+      ...args,
+      channel,
+      ts
+    });
+  }
+
+  /**
+   * Update a message from the main channel
+   * @param {float} ts The ts value of the message to update
+   * @param {{text: string, blocks: any[]}} args An object with either blocks or text property
+   */
+  async updateFromMain(ts, args) {
+    await this.updateMsg(this.mainChannel, ts, args);
+  }
+
+  /**
+   * Update a message from a user
+   * @param {string} user The user ID
+   * @param {float} ts The ts value of the message to update
+   * @param {{text: string, blocks: any[]}} args An object with either blocks or text property
+   */
+  async updateDM(user, ts, args) {
+    await this.updateMsg(await this.getDMFor(user), ts, args);
+  }
+
+  /**
    * Remove a message
    * @param {string} channel The channel ID
    * @param {float} ts The ts value of the message to delete
