@@ -30,6 +30,7 @@
   "dependencies": {
     "@slack/rtm-api": "^5.0.0",
     "@slack/web-api": "^5.0.0",
+    "dayjs": "^1.8.13",
     "dotenv": "^7.0.0",
     "gitlab": "^4.5.1",
     "https-proxy-agent": "^2.2.1",

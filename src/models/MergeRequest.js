@@ -1,5 +1,3 @@
-import Review from './Review';
-
 export default class MergeRequest {
   constructor(data = {}) {
     this.id = data.id;

@@ -5,7 +5,11 @@ export default class GitlabManager extends EventEmitter {
   constructor({ url, token, projects = [] }) {
     super();
     this.projects = projects;
-    this.api = new Gitlab({ url, token });
+    this.api = new Gitlab({
+      url,
+      token,
+      rejectUnauthorized: false
+    });
   }
 
   async fetchMergeRequests() {

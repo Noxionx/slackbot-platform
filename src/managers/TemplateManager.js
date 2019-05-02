@@ -1,7 +1,8 @@
+import dayjs from 'dayjs';
+
 const MAN_ENTRIES = [
   { command: 'man', info: 'Print this help' },
-  { command: 'info', info: 'Display reactions icons details' },
-  { command: 'list', info: 'List all opened Merge requests' }
+  { command: 'info', info: 'Display reactions icons details' }
 ];
 
 const MIN_REVIEWS = 2;
@@ -42,15 +43,22 @@ export default class TemplateManager {
 
   mergeRequest(mergeRequest) {
     const title = section(
-      markdown(`*<${mergeRequest.web_url}|${mergeRequest.title}>*`)
+      markdown(
+        `*${mergeRequest.project_name}* : <${mergeRequest.web_url}|${
+          mergeRequest.title
+        }>`
+      )
     );
+    const date = dayjs(mergeRequest.created_at);
     const details = context([
-      markdown(`*Project:* ${mergeRequest.project_name}`),
+      markdown(`*Date:* ${date.format('DD/MM/YYYY HH:mm')}`),
       markdown(`*Target Branch:* ${mergeRequest.target_branch}`),
       markdown(`*Author:* ${mergeRequest.author.name}`)
     ]);
     const status = context([markdown(getMergeRequestStatus(mergeRequest))]);
-    return { blocks: [title, details, divider(), status] };
+    return {
+      blocks: [title, details, divider(), status]
+    };
   }
 }
 

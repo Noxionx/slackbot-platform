@@ -127,7 +127,7 @@ export default class SlackManager extends EventEmitter {
   /**
    * Update a message
    * @param {string} channel The channel id
-   * @param {float} ts The ts value of the message to update
+   * @param {string} ts The ts value of the message to update
    * @param {{text: string, blocks: any[]}} args An object with either blocks or text property
    */
   async updateMsg(channel, ts, args) {
@@ -140,7 +140,7 @@ export default class SlackManager extends EventEmitter {
 
   /**
    * Update a message from the main channel
-   * @param {float} ts The ts value of the message to update
+   * @param {string} ts The ts value of the message to update
    * @param {{text: string, blocks: any[]}} args An object with either blocks or text property
    */
   async updateFromMain(ts, args) {
@@ -150,7 +150,7 @@ export default class SlackManager extends EventEmitter {
   /**
    * Update a message from a user
    * @param {string} user The user ID
-   * @param {float} ts The ts value of the message to update
+   * @param {string} ts The ts value of the message to update
    * @param {{text: string, blocks: any[]}} args An object with either blocks or text property
    */
   async updateDM(user, ts, args) {
@@ -160,7 +160,7 @@ export default class SlackManager extends EventEmitter {
   /**
    * Remove a message
    * @param {string} channel The channel ID
-   * @param {float} ts The ts value of the message to delete
+   * @param {string} ts The ts value of the message to delete
    */
   async removeMsg(channel, ts) {
     await this.webClient.chat.delete({
@@ -171,7 +171,7 @@ export default class SlackManager extends EventEmitter {
 
   /**
    * Remove a message from the main channel
-   * @param {float} ts The ts value of the message to delete
+   * @param {string} ts The ts value of the message to delete
    */
   async removeFromMain(ts) {
     await this.removeMsg(this.mainChannel, ts);
@@ -180,7 +180,7 @@ export default class SlackManager extends EventEmitter {
   /**
    * Remove a direct message for a user
    * @param {string} user The user ID
-   * @param {float} ts The ts value of the message to delete
+   * @param {string} ts The ts value of the message to delete
    */
   async removeDM(user, ts) {
     await this.removeMsg(await this.getDMFor(user), ts);

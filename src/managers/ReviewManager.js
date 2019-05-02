@@ -46,33 +46,42 @@ export default class ReviewManager {
     const oldMergeRequests = botMergeRequests.filter(
       m => !gitlabMergeRequests.find(e => isSameMergeRequest(e, m))
     );
-    oldMergeRequests.forEach(async mr => await this.removeMergeRequest(mr));
+    for (let oldMR of oldMergeRequests) {
+      await this.removeMergeRequest(oldMR);
+    }
 
     // Add new
     const newMergeRequests = gitlabMergeRequests.filter(
       m => !botMergeRequests.find(e => isSameMergeRequest(e, m))
     );
-    newMergeRequests.forEach(async mr => await this.newMergeRequest(mr));
+    for (let newMr of newMergeRequests) {
+      await this.newMergeRequest(newMr);
+    }
   }
 
   newMergeRequest(mergeRequest) {
-    this.removeMergeRequest(mergeRequest);
-    const newMergeRequest = new MergeRequest(mergeRequest);
-    this.slackManager.once('_botmsg', ({ event }) => {
-      newMergeRequest.ts = event.ts;
-      this.table.push(newMergeRequest).write();
+    return new Promise(async resolve => {
+      await this.removeMergeRequest(mergeRequest);
+      const newMergeRequest = new MergeRequest(mergeRequest);
+
+      this.slackManager.once('_botmsg', ({ event }) => {
+        newMergeRequest.ts = event.ts;
+        this.table.push(newMergeRequest).write();
+        resolve();
+      });
+
+      await this.slackManager.sendToMain(
+        this.templateManager.mergeRequest(newMergeRequest)
+      );
     });
-    this.slackManager.sendToMain(
-      this.templateManager.mergeRequest(newMergeRequest)
-    );
   }
 
-  removeMergeRequest(mergeRequest) {
+  async removeMergeRequest(mergeRequest) {
     const { project_id, iid } = mergeRequest;
     const entry = this.table.find({ project_id, iid }).value();
     if (entry) {
       if (entry.ts) {
-        this.slackManager.removeFromMain(entry.ts);
+        await this.slackManager.removeFromMain(entry.ts);
       }
       this.table.remove({ project_id, iid }).write();
     }

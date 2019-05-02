@@ -10,8 +10,12 @@ import DBManager from './managers/DBManager';
  * Main projects declaration (has to be improved !)
  */
 const PROJECTS = [
-  { id: 26, name: 'Boilerplate' }
-  //  { id: 123, name: 'TOTO' },
+  { id: 1456, name: 'FO' },
+  { id: 504, name: 'MO' },
+  { id: 2099, name: 'Gauthiq' },
+  { id: 2507, name: 'SUSHI - Paynet' },
+  { id: 2503, name: 'SUSHI - Sigmaitc' },
+  { id: 463, name: 'Liferay' }
 ];
 
 export class Engine {
@@ -55,9 +59,9 @@ export class Engine {
   }
 
   async connectEvents() {
-    this.slackManager.on('man', ({ event }) =>
-      this.slackManager.sendDM(event.user, this.templateManager.man())
-    );
+    this.slackManager.on('man', ({ event }) => {
+      this.slackManager.sendDM(event.user, this.templateManager.man());
+    });
 
     this.slackManager.on('info', ({ event }) =>
       this.slackManager.sendDM(event.user, this.templateManager.info())
