@@ -32,6 +32,7 @@ export class Engine {
 
     this.slackManager = new SlackManager({
       token: process.env.SLACK_TOKEN,
+      botToken: process.env.SLACK_BOT_TOKEN,
       mainChannel: process.env.SLACK_CHANNEL,
       botName: process.env.BOT_NAME || 'mr-bot',
       proxy

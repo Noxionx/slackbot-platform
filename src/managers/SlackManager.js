@@ -3,37 +3,42 @@ import { WebClient } from '@slack/web-api';
 import { RTMClient } from '@slack/rtm-api';
 
 export default class SlackManager extends EventEmitter {
-  constructor({ token, botName, mainChannel, proxy }) {
+  constructor({ token, botToken, botName, mainChannel, proxy }) {
     super();
     this.botName = botName;
     this.mainChannel = mainChannel;
 
-    this.webClient = new WebClient(token, { agent: proxy });
-    this.rtmClient = new RTMClient(token, { agent: proxy });
+    this.webClient = new WebClient(botToken, { agent: proxy });
+    this.rtmClient = new RTMClient(botToken, { agent: proxy });
+
+    this.globalWebClient = new WebClient(token, { agent: proxy });
   }
 
   async init() {
-    this.me = this.getBotUser();
+    this.me = await this.getBotUser();
     if (!this.me) {
       throw 'Bot user not found in your workspace';
     }
 
     await this.rtmClient.start();
     this.rtmClient.on('message', event => {
-      if (!event.text) return;
       if (event.subtype && event.subtype == 'bot_message') {
         this.emit('_botmsg', { event });
-      } else if (isBotMessage(this.me.id, event.text)) {
+      } else if (event.subtype && event.subtype == 'message_replied') {
+        if (event.message && event.message.subtype == 'bot_message') {
+          this.emit('_reply', { event });
+        }
+      } else if (event.text && isBotMessage(this.me.id, event.text)) {
         const { cmd, args } = parseMessageToCommand(event.text);
         this.emit(cmd, { args, event });
       }
     });
 
     this.rtmClient.on('reaction_added', event => {
-      this.emit('reaction', { event });
+      this.emit('_reaction', { event });
     });
     this.rtmClient.on('reaction_removed', event => {
-      this.emit('reaction', { event });
+      this.emit('_reaction', { event });
     });
   }
 
@@ -163,7 +168,7 @@ export default class SlackManager extends EventEmitter {
    * @param {string} ts The ts value of the message to delete
    */
   async removeMsg(channel, ts) {
-    await this.webClient.chat.delete({
+    await this.globalWebClient.chat.delete({
       channel,
       ts
     });

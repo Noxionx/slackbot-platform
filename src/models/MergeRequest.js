@@ -26,6 +26,7 @@ export default class MergeRequest {
 
     // Slack Info
     this.ts = data.ts || null;
+    this.replies = data.replies || [];
 
     // Review Info
     this.reviewers = data.reviewers || [];

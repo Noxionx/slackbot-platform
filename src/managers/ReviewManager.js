@@ -23,8 +23,13 @@ export default class ReviewManager {
     setInterval(() => this.refresh(), 60 * 1000);
 
     // Add reaction listener
-    this.slackManager.on('reaction', async ({ event }) => {
+    this.slackManager.on('_reaction', async ({ event }) => {
       await this.processReaction(event);
+    });
+
+    // Add reply listener
+    this.slackManager.on('_reply', async ({ event }) => {
+      await this.processReply(event);
     });
   }
 
@@ -80,6 +85,11 @@ export default class ReviewManager {
     const { project_id, iid } = mergeRequest;
     const entry = this.table.find({ project_id, iid }).value();
     if (entry) {
+      if (entry.replies && entry.replies.length) {
+        for (let reply of entry.replies) {
+          await this.slackManager.removeFromMain(reply);
+        }
+      }
       if (entry.ts) {
         await this.slackManager.removeFromMain(entry.ts);
       }
@@ -110,6 +120,23 @@ export default class ReviewManager {
       if (isFinishReviewReaction(event.reaction)) {
         await this.removeValidator(mergeRequest, event.user);
       }
+    }
+  }
+
+  async processReply(event) {
+    if (!event.message) return;
+    if (event.channel != this.slackManager.mainChannel) return;
+
+    const mergeRequest = this.table.find({ ts: event.message.ts }).value();
+    if (!mergeRequest) return;
+
+    const { project_id, iid } = mergeRequest;
+    if (event.message.replies && event.message.replies.length) {
+      mergeRequest.replies = event.message.replies.map(r => r.ts);
+      this.table
+        .find({ project_id, iid })
+        .assign(mergeRequest)
+        .write();
     }
   }
 
