@@ -4,8 +4,19 @@
   "description": "Simple NodeJS starter with ESLint and Babel configs.",
   "main": "src/index.js",
   "scripts": {
-    "start": "nodemon --ignore db.json --exec babel-node -- src/index.js",
-    "build": "babel src -d dist"
+    "build": "tsc -p tsconfig.build.json",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "start": "ts-node -r tsconfig-paths/register src/main.ts",
+    "start:dev": "concurrently --handle-input \"wait-on dist/main.js && nodemon\" \"tsc -w -p tsconfig.build.json\" ",
+    "start:debug": "nodemon --config nodemon-debug.json",
+    "prestart:prod": "rimraf dist && npm run build",
+    "start:prod": "node dist/main.js",
+    "lint": "tslint -p tsconfig.json -c tslint.json",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "repository": {
     "type": "git",
@@ -13,27 +24,48 @@
   },
   "keywords": [
     "node",
-    "babel",
-    "eslint",
     "boilerplate"
   ],
   "author": "nox35400@gmail.com",
   "license": "ISC",
   "devDependencies": {
-    "@babel/cli": "^7.4.3",
-    "@babel/core": "^7.4.3",
-    "@babel/node": "^7.2.2",
-    "@babel/preset-env": "^7.4.3",
-    "eslint": "^5.16.0",
-    "nodemon": "^1.18.10"
+    "@types/dotenv": "^6.1.1",
+    "@types/jest": "^24.0.14",
+    "@types/node": "^12.0.8",
+    "concurrently": "^4.1.0",
+    "jest": "^24.8.0",
+    "nodemon": "^1.19.1",
+    "prettier": "^1.18.2",
+    "rimraf": "^2.6.3",
+    "supertest": "^4.0.2",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.3.0",
+    "tslint": "^5.17.0",
+    "typescript": "^3.5.2",
+    "wait-on": "^3.2.0"
   },
   "dependencies": {
     "@slack/rtm-api": "^5.0.0",
     "@slack/web-api": "^5.0.0",
+    "@types/slack-node": "^0.1.2",
     "dayjs": "^1.8.13",
     "dotenv": "^7.0.0",
     "gitlab": "^4.5.1",
     "https-proxy-agent": "^2.2.1",
     "lowdb": "^1.0.0"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".spec.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
   }
 }
