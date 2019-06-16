@@ -34,22 +34,6 @@ export default class TemplateManager {
     return [section(markdown(txt))];
   }
 
-  static listMergeRequests(mergeRequests: MergeRequest[] = []): Block[] {
-    let blocks = [];
-    for (const mr of mergeRequests) {
-      const title = section(markdown(`*<${mr.web_url}|${mr.title}>*`));
-      const details = context([
-        markdown(`*ID:* ${mr.id}`),
-        markdown(`*Project:* ${mr.projectName}`),
-        markdown(`*Target Branch:* ${mr.target_branch}`),
-        markdown(`*Author:* ${mr.author}`),
-      ]);
-      const row = [title, details, divider()];
-      blocks = [...blocks, ...row];
-    }
-    return blocks;
-  }
-
   static mergeRequest(mergeRequest: MergeRequest): Block[] {
     const date = dayjs(mergeRequest.created_at);
     return [
@@ -61,8 +45,8 @@ export default class TemplateManager {
       ),
       // Merge request details
       context([
-        markdown(`*Date:* ${date.format('DD/MM/YYYY HH:mm')}`),
         markdown(`*Target Branch:* ${mergeRequest.target_branch}`),
+        markdown(`*Date:* ${date.format('DD/MM/YYYY HH:mm')}`),
         markdown(`*Author:* ${mergeRequest.author.name}`),
       ]),
 
@@ -70,6 +54,23 @@ export default class TemplateManager {
 
       // Merge request status
       context([markdown(this.getMergeRequestStatus(mergeRequest))]),
+    ];
+  }
+
+  static hello(mergeRequests: MergeRequest[] = []): Block[] {
+    const getLinkedTitle = (mergeRequest: MergeRequest): string => {
+      return `- *${mergeRequest.projectName}* : <${mergeRequest.link}|${mergeRequest.title}>`;
+    };
+    return [
+      section(
+        markdown(
+          `Hello champions ! There is ${
+            mergeRequests.length
+          } remaining merge request(s) to review\n${mergeRequests
+            .map(getLinkedTitle)
+            .join('\n')}`,
+        ),
+      ),
     ];
   }
 

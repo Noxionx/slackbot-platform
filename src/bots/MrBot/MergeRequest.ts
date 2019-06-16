@@ -25,4 +25,9 @@ export interface MergeRequest extends GitlabMergeRequest {
    * The slack message id attached to this merge request
    */
   ts: string;
+
+  /**
+   * The slack message permalink
+   */
+  link: string;
 }

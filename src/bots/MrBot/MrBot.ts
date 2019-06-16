@@ -1,3 +1,5 @@
+import cron from 'node-cron';
+
 import GitlabService from '../../services/GitlabService';
 import DBService from '../../services/DBService';
 
@@ -9,54 +11,9 @@ import SlackBot from '../SlackBot';
 
 import { MergeRequest } from './MergeRequest';
 import TemplateManager from './TemplateManager';
+import { MRBotConfig } from './MRBotConfig';
 
 const TABLE_NAME = 'mergeRequests';
-
-export interface MRBotSlackConfig {
-  /**
-   * Name of the bot user on slack
-   */
-  botName: string;
-
-  /**
-   * Bot OAuth token
-   */
-  botToken: string;
-
-  /**
-   * Slack channel id to use to post merge requests
-   */
-  channel: string;
-}
-
-export interface MRBotGitlabConfig {
-  /**
-   * Gitlab URL
-   */
-  url: string;
-
-  /**
-   * Gitlab Access Token
-   */
-  token: string;
-
-  /**
-   * List of gitlab projects to track
-   */
-  gitlabProjects: GitlabProject[];
-}
-
-export interface MRBotConfig {
-  /**
-   * Slack config
-   */
-  slack: MRBotSlackConfig;
-
-  /**
-   * Gitlab config
-   */
-  gitlab: MRBotGitlabConfig;
-}
 
 export default class MRBot extends SlackBot {
   private config: MRBotConfig;
@@ -90,6 +47,11 @@ export default class MRBot extends SlackBot {
     // Start refresh loop
     await this.refresh();
     setInterval(() => this.refresh(), 60 * 1000);
+
+    // Set cron schedule
+    if (this.config.cronSchedule) {
+      cron.schedule(this.config.cronSchedule, () => this.hello());
+    }
   }
 
   // IMPLEMENTED METHODS
@@ -218,6 +180,16 @@ export default class MRBot extends SlackBot {
     }
   }
 
+  private async hello() {
+    const dbMergeRequests = this.getAllDBMergeRequest();
+    if (dbMergeRequests.length) {
+      this.sendMessage(
+        this.config.slack.channel,
+        TemplateManager.hello(dbMergeRequests),
+      );
+    }
+  }
+
   private async newMergeRequest(
     project: GitlabProject,
     mergeRequest: GitlabMergeRequest,
@@ -225,19 +197,25 @@ export default class MRBot extends SlackBot {
     // Create the merge request object from GitlabMergeRequest
     const dbMR: MergeRequest = {
       ...mergeRequest,
+      projectName: project.name,
       hasNotes: await this.gitlabService.hasUnresolvedNotes(mergeRequest),
       reviewers: [],
       validators: [],
       ts: null,
-      projectName: project.name,
+      link: null,
     };
     // Send the slack message
     const rep = await this.sendMessage(
       this.config.slack.channel,
       TemplateManager.mergeRequest(dbMR),
     );
+
     // Add the message id the the merge request object
     dbMR.ts = rep.ts;
+
+    // Get the permalink of the message
+    dbMR.link = await this.getMessageLink(this.config.slack.channel, dbMR.ts);
+
     // Save merge request object
     this.dbService.saveOrUpdate(TABLE_NAME, dbMR);
   }

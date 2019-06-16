@@ -87,7 +87,6 @@ export default class DBService {
    * @param args Search arguments
    */
   remove(table: string, args: any) {
-    console.log(args);
     this.db
       .get(table)
       .remove(args)

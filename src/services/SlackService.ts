@@ -152,6 +152,18 @@ export default class SlackService {
     return await this.removeMessage(await this.getDMFor(user), ts);
   }
 
+  /**
+   * Get a permalink for a message
+   * @param {string} channel The channel ID
+   * @param {string} ts The ts value of the message
+   */
+  async getMessageLink(channel: string, ts: string): Promise<WebAPICallResult> {
+    return await this.webClient.chat.getPermalink({
+      channel,
+      message_ts: ts,
+    });
+  }
+
   static isMessageForUser(user: string = '', message: string) {
     if (!message) {
       return false;

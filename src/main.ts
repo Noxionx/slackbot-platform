@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import MRBot from './bots/MrBot/MrBot';
+import MRBot from './bots/MrBot/MRBot';
 
 const mrBot = new MRBot({
   gitlab: {
@@ -12,6 +12,7 @@ const mrBot = new MRBot({
     botToken: process.env.SLACK_BOT_TOKEN,
     channel: process.env.SLACK_CHANNEL,
   },
+  cronSchedule: process.env.MR_BOT_CRON_SCHEDULE,
 });
 
 mrBot.start();

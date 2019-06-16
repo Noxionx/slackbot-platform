@@ -128,6 +128,16 @@ export default abstract class SlackBot {
   }
 
   /**
+   * Get a permalink for a message
+   * @param channel Channel ID
+   * @param ts Message ID
+   */
+  protected async getMessageLink(channel: string, ts: string): Promise<string> {
+    const rep = await this.slackService.getMessageLink(channel, ts);
+    return rep.permalink as string;
+  }
+
+  /**
    * Initialisation function
    */
   protected async init(): Promise<void> {
