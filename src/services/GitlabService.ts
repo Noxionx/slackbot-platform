@@ -16,7 +16,9 @@ export default class GitlabService {
    * Get the list of all opened (and not WIP) merge requests for a project
    * @param projectId Project ID
    */
-  async getMergeRequests(projectId: number): Promise<GitlabMergeRequest[]> {
+  async getOpenedMergeRequests(
+    projectId: number,
+  ): Promise<GitlabMergeRequest[]> {
     return await this.api.MergeRequests.all({
       projectId,
       state: 'opened',

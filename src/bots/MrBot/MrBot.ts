@@ -183,10 +183,23 @@ export default class MRBot extends SlackBot {
     // For all tracked projects
     for (const project of this.config.gitlab.gitlabProjects) {
       // Fetch all opened merge requests (no WIP)
-      const mergeRequests = await this.gitlabService.getMergeRequests(
+      const mergeRequests = await this.gitlabService.getOpenedMergeRequests(
         project.id,
       );
 
+      // Clean finished Merge Requests
+      const dbMergeRequests = this.getAllDBMergeRequest();
+      for (const dbMR of dbMergeRequests) {
+        const mr = mergeRequests.find(
+          m => m.iid === dbMR.iid && m.project_id === dbMR.project_id,
+        );
+        if (!mr) {
+          dbMR.state = 'merged';
+          await this.updateMergeRequest(dbMR);
+        }
+      }
+
+      // Add or update existing Merge Requests
       for (const mr of mergeRequests) {
         // Search the merge request in DB
         const dbMR = this.getDBMergeRequest(mr);
@@ -236,11 +249,17 @@ export default class MRBot extends SlackBot {
       mergeRequest.ts,
       TemplateManager.mergeRequest(mergeRequest),
     );
-    // Save updated merge request
-    this.dbService.saveOrUpdate(TABLE_NAME, mergeRequest, [
-      'project_id',
-      'iid',
-    ]);
+
+    if (mergeRequest.state === 'opened') {
+      // Save updated merge request
+      this.dbService.saveOrUpdate(TABLE_NAME, mergeRequest, [
+        'project_id',
+        'iid',
+      ]);
+    } else {
+      const { iid, project_id } = mergeRequest;
+      this.dbService.remove(TABLE_NAME, { iid, project_id });
+    }
   }
 
   private async addReviewer(mergeRequest: MergeRequest, user: string) {
@@ -277,11 +296,15 @@ export default class MRBot extends SlackBot {
     }
   }
 
-  private getDBMergeRequest(mergeRequest: GitlabMergeRequest) {
+  private getDBMergeRequest(mergeRequest: GitlabMergeRequest): MergeRequest {
     const { project_id, iid } = mergeRequest;
     return this.dbService.search<MergeRequest>(TABLE_NAME, {
       project_id,
       iid,
     });
+  }
+
+  private getAllDBMergeRequest(): MergeRequest[] {
+    return this.dbService.all<MergeRequest>(TABLE_NAME);
   }
 }

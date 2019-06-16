@@ -84,12 +84,13 @@ export default class DBService {
   /**
    * Remove element from table
    * @param table Table name
-   * @param id Element ID
+   * @param args Search arguments
    */
-  remove(table: string, id: number | string) {
+  remove(table: string, args: any) {
+    console.log(args);
     this.db
       .get(table)
-      .remove({ id })
+      .remove(args)
       .write();
   }
 }

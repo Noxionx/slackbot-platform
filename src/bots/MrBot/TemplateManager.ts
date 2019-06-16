@@ -85,39 +85,40 @@ export default class TemplateManager {
 
   private static getMergeRequestStatus(mergeRequest: MergeRequest): string {
     const status = [];
-    if (mergeRequest.hasNotes) {
-      status.push(':warning: There is unresolved discussions');
-    }
-    if (mergeRequest.reviewers && mergeRequest.reviewers.length) {
-      mergeRequest.reviewers.forEach((r, i) => {
-        if (
-          mergeRequest.validators &&
-          mergeRequest.validators.indexOf(r) !== -1
-        ) {
-          status.push(
-            `:${
-              i === 0 ? 'white' : 'heavy'
-            }_check_mark: This Merge Request has been approved by <@${r}>`,
-          );
-        } else {
-          status.push(`:eyes: This Merge Request is being reviewed by <@${r}>`);
-        }
-      });
-    }
-    if (!mergeRequest.hasNotes) {
-      if (
-        mergeRequest.reviewers.length &&
-        mergeRequest.reviewers.length === mergeRequest.validators.length &&
-        mergeRequest.validators.length < MIN_REVIEWS
-      ) {
-        status.push(':pray: More review(s) needed :pray:');
-      } else if (mergeRequest.validators.length === MIN_REVIEWS) {
-        status.push(':tada: Ready to merge !');
+    if (mergeRequest.state === 'opened') {
+      if (mergeRequest.hasNotes) {
+        status.push(':warning: There is unresolved discussions');
       }
+      if (mergeRequest.reviewers && mergeRequest.reviewers.length) {
+        mergeRequest.reviewers.forEach((r, i) => {
+          if (
+            mergeRequest.validators &&
+            mergeRequest.validators.indexOf(r) !== -1
+          ) {
+            status.push(`:ok_hand: <@${r}> has approved the code`);
+          } else {
+            status.push(`:eyes: <@${r}> is reviewing...`);
+          }
+        });
+      }
+      if (!mergeRequest.hasNotes) {
+        if (
+          mergeRequest.reviewers.length &&
+          mergeRequest.reviewers.length === mergeRequest.validators.length &&
+          mergeRequest.validators.length < MIN_REVIEWS
+        ) {
+          status.push(':pray: One more review needed');
+        } else if (mergeRequest.validators.length === MIN_REVIEWS) {
+          status.push(':+1: Ready to merge !');
+        }
+      }
+      if (!status.length) {
+        status.push(':loudspeaker: New Merge Request to review');
+      }
+    } else {
+      status.push(':heavy_check_mark: This Merge Request has been merged');
     }
-    if (!status.length) {
-      status.push(':loudspeaker: :sparkles: New Merge Request to review');
-    }
+
     return status.join('\n');
   }
 }
