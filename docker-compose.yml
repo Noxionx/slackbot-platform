@@ -7,4 +7,4 @@ services:
     volumes:
       - .:/slackbot-platform
     restart: always
-    command: 'npm i && npm start'
+    command: bash -c "npm i && npm start"
