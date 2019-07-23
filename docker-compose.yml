@@ -1,10 +1,12 @@
-version: '3'
+version: '2'
 
 services:
-  certbot-nginx:
-    image: node
+  slackbot-platform:
+    image: node:lts
     env_file: .env
+    user: 'node'
+    working_dir: /home/node/app
     volumes:
-      - .:/slackbot-platform
+      - ./:/home/node/app
     restart: always
-    command: bash -c "cd /slackbot-platform && npm i && npm start"
+    command: 'npm start'
