@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  certbot-nginx:
+    image: node
+    env_file: .env
+    volumes:
+      - .:/slackbot-platform
+    restart: always
+    command: 'npm i && npm start'
