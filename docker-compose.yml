@@ -4,9 +4,16 @@ services:
   slackbot-platform:
     image: 'node:lts'
     env_file: .env
-    user: 'node'
     working_dir: /home/node/app
     volumes:
       - ./:/home/node/app
     restart: always
-    command: 'npm i && npm start'
+    command: 'npm start'
+    depends_on:
+      - install
+  install:
+    image: 'node:lts'
+    working_dir: /home/node/app
+    volumes:
+      - ./:/home/node/app
+    command: 'npm i'
