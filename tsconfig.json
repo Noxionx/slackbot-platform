@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "module": "commonjs",
+    "module": "es6",
     "moduleResolution": "node",
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -12,10 +12,13 @@
     "sourceMap": true,
     "outDir": "./dist",
     "incremental": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "allowJs": true
   },
   "exclude": ["**/node_modules/*"],
+  "include": ["**/*.ts"],
   "paths": {
+    "./*": ["./src/*"],
     "@services/*": ["src/services/*"],
     "@models/*": ["src/models/*"]
   }
